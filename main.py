@@ -1,6 +1,7 @@
 # Программа копирует фотографии с профиля VK и записывает их в отдельную папку на яндекс диск.
 # Предварительно получается токен для доступа к фотографиям в контакте и OAUTH token для доступа в яндекс диск
 import time
+from tqdm import tqdm
 from progress.bar import IncrementalBar
 import logging
 logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w", format="%(asctime)s %(levelname)s %(message)s")
@@ -53,8 +54,9 @@ class Yandex_Client:
     def upload_photos(self, dict, path_name_folder):
         # загружаем файлы на Яндекс диск
         params = {'path': path_name_folder}
-        bar = IncrementalBar('Countdown', max=6)
-        for i in range(0,6):
+        #bar = IncrementalBar('Countdown', max=6)
+        #for i in range(0,6):
+        for i, items in tqdm(enumerate(dict['response']['items'])):
             for size in dict['response']['items'][i]['sizes']:
                 if size['type'] == 'w':
                     #print(size['url'])
@@ -62,9 +64,9 @@ class Yandex_Client:
                     responce = requests.post('https://cloud-api.yandex.net/v1/disk/resources/upload', headers=self.headers, params=params)
                     print(responce.status_code)
                     print(responce.json())
-            bar.next()
+            # bar.next()
             time.sleep(1)
-        bar.finish()
+        # bar.finish()
 
 token = open("token").read()
 yandex_cl1 = Yandex_Client(token)
